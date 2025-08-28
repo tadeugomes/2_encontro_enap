@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Análise de Diferenças Salariais por CBO</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #2c3e50; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #3498db; color: white; }
+        tr:hover { background-color: #f5f5f5; }
+        .highlight { background-color: #e8f4f8; padding: 20px; border-left: 5px solid #3498db; margin: 20px 0; }
+        .chart-container { text-align: center; margin: 30px 0; }
+        img { max-width: 100%; height: auto; }
+        .conclusion { background-color: #e8f5e9; padding: 20px; border-left: 5px solid #4caf50; margin: 20px 0; }
+        .recommendation { background-color: #fff3e0; padding: 20px; border-left: 5px solid #ff9800; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Análise de Diferenças Salariais por Categoria Profissional (CBO)</h1>
+        
+        <div class="highlight">
+            <h2>Resumo Executivo</h2>
+            <p>Esta análise examina as diferenças salariais entre homens e mulheres em seis categorias profissionais específicas, utilizando dados da RAIS. O objetivo é entender como a desigualdade salarial varia entre diferentes ocupações e áreas de atuação.</p>
+        </div>
+        
+        <h2>Diferenças Salariais por Ocupação</h2>
+        <table>
+            <tr>
+                <th>Ocupação</th>
+                <th>Código CBO</th>
+                <th>Salário Médio Homens</th>
+                <th>Salário Médio Mulheres</th>
+                <th>Diferença Salarial</th>
+            </tr>
+
+            <tr>
+                <td>Administrador</td>
+                <td>252105</td>
+                <td>R$ 7,317.85</td>
+                <td>R$ 5,811.94</td>
+                <td>25.91%</td>
+            </tr>
+
+            <tr>
+                <td>Técnico em administração</td>
+                <td>351305</td>
+                <td>R$ 6,357.20</td>
+                <td>R$ 5,173.03</td>
+                <td>22.89%</td>
+            </tr>
+
+            <tr>
+                <td>Técnico de suporte ao usuário de TI</td>
+                <td>317210</td>
+                <td>R$ 2,979.33</td>
+                <td>R$ 2,654.62</td>
+                <td>12.23%</td>
+            </tr>
+
+            <tr>
+                <td>Analista de desenvolvimento de sistemas</td>
+                <td>212405</td>
+                <td>R$ 9,766.16</td>
+                <td>R$ 8,826.88</td>
+                <td>10.64%</td>
+            </tr>
+
+            <tr>
+                <td>Médico clínico</td>
+                <td>225125</td>
+                <td>R$ 10,818.07</td>
+                <td>R$ 10,133.35</td>
+                <td>6.76%</td>
+            </tr>
+
+            <tr>
+                <td>Técnico de enfermagem</td>
+                <td>322205</td>
+                <td>R$ 3,137.05</td>
+                <td>R$ 2,981.36</td>
+                <td>5.22%</td>
+            </tr>
+
+        </table>
+        
+        <h2>Visualizações</h2>
+        
+        <div class="chart-container">
+            <h3>Diferenças Salariais por CBO</h3>
+            <img src="diferencas_salariais_por_cbo.png" alt="Diferenças Salariais por CBO">
+        </div>
+        
+        <div class="chart-container">
+            <h3>Comparação de Salários Homens vs Mulheres</h3>
+            <img src="comparacao_salarios_cbo.png" alt="Comparação de Salários">
+        </div>
+        
+        <div class="chart-container">
+            <h3>Diferenças Salariais por Área de Atuação</h3>
+            <img src="diferencas_salariais_por_area.png" alt="Diferenças por Área">
+        </div>
+        
+        <div class="chart-container">
+            <h3>Diferenças Salariais por Características de Gênero</h3>
+            <img src="diferencas_salariais_por_genero.png" alt="Diferenças por Gênero">
+        </div>
+        
+        <div class="conclusion">
+            <h2>Conclusões Principais</h2>
+            <ul>
+                <li><strong>As maiores desigualdades salariais</strong> ocorrem nas áreas de administração, mesmo em ocupações consideradas equilibradas em termos de gênero.</li>
+                <li><strong>As menores desigualdades</strong> são encontradas nas ocupações predominantemente femininas, como o técnico de enfermagem.</li>
+                <li><strong>A área de saúde</strong> apresenta as menores diferenças salariais, sugerindo maior equidade de gênero nesse setor.</li>
+                <li><strong>A área de tecnologia</strong> mostra diferenças moderadas, com maior desigualdade nas posições operacionais.</li>
+                <li>Existe uma correlação inversa entre a predominância feminina de uma ocupação e a diferença salarial: ocupações com maioria feminina apresentam menores desigualdades.</li>
+            </ul>
+        </div>
+        
+        <div class="recommendation">
+            <h2>Recomendações</h2>
+            <ol>
+                <li>Investigar fatores estruturais nas áreas de administração que contribuem para as altas diferenças salariais.</li>
+                <li>Promover políticas de transparência salarial para identificar e corrigir disparidades.</li>
+                <li>Analisar a progressão de carreira de homens e mulheres nas diferentes ocupações para entender os pontos de divergência.</li>
+                <li>Realizar uma análise mais aprofundada com técnicas estatísticas avançadas, como a decomposição Oaxaca-Blinder.</li>
+                <li>Considerar a realização de estudos qualitativos para complementar os achados quantitativos.</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

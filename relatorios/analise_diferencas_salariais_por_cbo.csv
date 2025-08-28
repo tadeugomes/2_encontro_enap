@@ -1,0 +1,7 @@
+CBO,Ocupacao,Area,Nivel,Caracteristicas_Genero,Registros_Homens,Registros_Mulheres,Salario_Medio_Homens,Salario_Medio_Mulheres,Diferenca_Absoluta,Diferenca_Salarial_Percentual
+252105,Administrador,Administração,Superior,Equilibrada com tendência feminina,141696,190097,7317.85,5811.94,1505.9100000000008,25.91062536777737
+351305,Técnico em administração,Administração,Operacional,Equilibrada,19615,26779,6357.2,5173.03,1184.17,22.89122622524904
+317210,Técnico de suporte ao usuário de TI,Tecnologia da Informação,Operacional,Tradicionalmente masculina,63775,17361,2979.33,2654.62,324.71000000000004,12.231882529326231
+212405,Analista de desenvolvimento de sistemas,Tecnologia da Informação,Superior,Tradicionalmente masculina,212703,58974,9766.16,8826.88,939.2800000000008,10.64113254060326
+225125,Médico clínico,Saúde,Superior,Tradicionalmente masculina,75827,71207,10818.07,10133.35,684.7199999999993,6.757094149516196
+322205,Técnico de enfermagem,Saúde,Operacional,Tradicionalmente feminina,132686,759980,3137.05,2981.36,155.69000000000003,5.222113397912365

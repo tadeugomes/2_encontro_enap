@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENAP - 2º Encontro Presencial | Análise de Diferenças Salariais por Gênero</title>
+    <meta name="description" content="Análise das diferenças salariais entre homens e mulheres em diferentes categorias profissionais no Brasil usando decomposição Oaxaca-Blinder">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --info: #5dade2;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        h1, h2, h3, h4, h5 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        h2 {
+            font-size: 2rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        h2:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: var(--secondary);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        .section {
+            padding: 80px 0;
+        }
+        
+        .section:nth-child(even) {
+            background-color: #fff;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: var(--secondary);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .logo span {
+            color: var(--secondary);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 30px;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            font-size: 1.1rem;
+        }
+        
+        nav ul li a:hover {
+            color: var(--secondary);
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(44, 62, 80, 0.85), rgba(44, 62, 80, 0.9)), url('https://images.unsplash.com/photo-1551836022-d5d88e9218df?ixlib=rb-4.0.3') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding-top: 80px;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .hero-btns {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        /* Results Section */
+        .results-intro {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 50px;
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin: 10px 0;
+        }
+        
+        .component-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        .component-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .component-description {
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+        
+        .component-highlight {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-left: 4px solid var(--secondary);
+            margin: 15px 0;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .chart-container h3 {
+            margin-bottom: 20px;
+        }
+        
+        .chart-container img {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            border-radius: 5px;
+            margin: 0 auto;
+        }
+        
+        .chart-explanation {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin: 30px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Methodology Section */
+        .methodology-steps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        
+        .step {
+            flex: 0 0 calc(50% - 20px);
+            margin-bottom: 40px;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .detailed-results {
+            margin-top: 50px;
+        }
+        
+        .result-category {
+            margin-bottom: 40px;
+        }
+        
+        /* Recommendations Section */
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .recommendation-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--secondary);
+            text-align: center;
+        }
+        
+        .recommendation-card i {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--primary);
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-section h3 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .footer-section h3:after {
+            background: var(--secondary);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+            }
+            
+            nav ul {
+                margin-top: 20px;
+            }
+            
+            nav ul li {
+                margin: 0 10px;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .hero-btns {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .step {
+                flex: 0 0 100%;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.7rem;
+            }
+            
+            .methodology-steps {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .hero-btns {
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <a href="#" class="logo">ENAP<span>2º Encontro Presencial</span></a>
+            <nav>
+                <ul>
+                    <li><a href="#resultados">Resultados</a></li>
+                    <li><a href="#metodologia">Metodologia</a></li>
+                    <li><a href="#apresentacao">Apresentação</a></li>
+                    <li><a href="#recomendacoes">Recomendações</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <h1>Análise de Diferenças Salariais por Gênero no Mercado de Trabalho Brasileiro</h1>
+            <p>Compreendendo as disparidades salariais entre homens e mulheres em diferentes categorias profissionais através da decomposição Oaxaca-Blinder</p>
+            <div class="hero-btns">
+                <a href="#resultados" class="btn">Ver Resultados</a>
+                <a href="#metodologia" class="btn btn-outline">Entender Metodologia</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Presentation Section -->
+    <section id="apresentacao" class="section" style="background-color: #fff;">
+        <div class="container">
+            <div class="text-center">
+                <h2>Apresentação da Análise</h2>
+                <p style="max-width: 800px; margin: 0 auto 30px;">Veja uma apresentação interativa dos principais resultados da análise Oaxaca-Blinder por categoria profissional</p>
+            </div>
+            <div style="display: flex; justify-content: center;">
+                <iframe src="https://gamma.app/embed/rkxdnn2pkxvptuh" style="width: 700px; max-width: 100%; height: 450px; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" allow="fullscreen" title="Análise Oaxaca-Blinder por Categoria Profissional"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="resultados" class="section">
+        <div class="container">
+            <div class="results-intro">
+                <h2>Resultados da Análise - Decomposição Oaxaca-Blinder</h2>
+                <p>Esta análise utiliza a metodologia da decomposição Oaxaca-Blinder para examinar as diferenças salariais entre homens e mulheres em seis categorias profissionais específicas, identificando componentes explicados e não explicados das disparidades salariais.</p>
+            </div>
+
+            <div class="cards-container">
+                <div class="component-card">
+                    <h3 class="component-title">Componente Explicado (Características Observáveis)</h3>
+                    <p class="component-description">Representa a parte da diferença salarial que pode ser atribuída a diferenças observáveis nas características dos trabalhadores, como escolaridade, experiência, região, setor e ocupação.</p>
+                    <div class="component-highlight">
+                        <p><strong>Exemplo:</strong> Na categoria de Administradores (CBO 252105), diferenças em nível de educação ou experiência podem explicar parte da diferença salarial entre homens e mulheres.</p>
+                    </div>
+                    <p class="component-description">Este componente é calculado mantendo os retornos (coeficientes) dos homens e aplicando às mulheres, revelando o quanto as diferenças em características produtivas contribuem para a disparidade salarial.</p>
+                </div>
+
+                <div class="component-card">
+                    <h3 class="component-title">Componente Não Explicado (Retornos/Discriminação)</h3>
+                    <p class="component-description">Representa a parte da diferença salarial que não é explicada pelas características observáveis, frequentemente interpretada como possível discriminação salarial ou fatores não observados.</p>
+                    <div class="component-highlight">
+                        <p><strong>Exemplo:</strong> Mesmo com características idênticas, se homens recebem salários diferentes das mulheres, isso aparece neste componente.</p>
+                    </div>
+                    <p class="component-description">Este componente é calculado comparando os retornos (coeficientes) de homens e mulheres para as mesmas características, indicando diferenças nos "prêmios" por produtividade entre os gêneros.</p>
+                </div>
+
+                <div class="component-card">
+                    <h3 class="component-title">Componente de Interação</h3>
+                    <p class="component-description">Representa o efeito combinado de diferenças em características e coeficientes, geralmente pequeno e de difícil interpretação econômica.</p>
+                    <div class="component-highlight">
+                        <p><strong>Interpretação:</strong> Este componente captura efeitos simultâneos e não lineares das diferenças em características e retornos, mas tipicamente representa uma pequena parcela da diferença total.</p>
+                    </div>
+                    <p class="component-description">Na decomposição Oaxaca-Blinder, este componente é frequentemente calculado como o resíduo necessário para que a soma dos componentes iguale a diferença total.</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Decomposição Oaxaca-Blinder por Categoria Profissional</h3>
+                <img src="./relatorios/diferencas_salariais_por_cbo.png" alt="Gráfico de diferenças salariais por CBO">
+                <div class="chart-explanation">
+                    <h4>Explicação do Gráfico</h4>
+                    <p>Este gráfico apresenta a diferença salarial total para cada categoria profissional, com barras divididas em componentes explicados e não explicados. A altura total da barra representa a diferença salarial percentual entre homens e mulheres naquela ocupação.</p>
+                    <p><strong>Interpretação:</strong> Barras mais altas indicam maiores desigualdades salariais. A proporção entre as partes explicada e não explicada revela se a desigualdade se deve mais a diferenças em características ou a retornos diferenciados.</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Componentes da Decomposição por Ocupação</h3>
+                <img src="./relatorios/comparacao_salarios_cbo.png" alt="Comparação de salários por CBO">
+                <div class="chart-explanation">
+                    <h4>Explicação do Gráfico</h4>
+                    <p>Este gráfico mostra a contribuição percentual de cada componente da decomposição Oaxaca-Blinder para a diferença salarial total em cada categoria profissional.</p>
+                    <p><strong>Interpretação:</strong> Setores com maior proporção do componente não explicado sugerem maior presença de fatores não observáveis ou discriminação. Setores com maior componente explicado indicam que as diferenças se devem mais a características observáveis.</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Comparação de Salários Homens vs Mulheres por Ocupação</h3>
+                <img src="./relatorios/diferencas_salariais_por_area.png" alt="Diferenças salariais por área">
+                <div class="chart-explanation">
+                    <h4>Explicação do Gráfico</h4>
+                    <p>Este gráfico de dispersão compara os salários médios de homens e mulheres em cada categoria profissional, com cada ponto representando uma ocupação.</p>
+                    <p><strong>Interpretação:</strong> Pontos acima da linha de igualdade indicam ocupações onde homens ganham mais; pontos abaixo indicam onde mulheres ganham mais. A distância da linha revela a magnitude da diferença salarial.</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Diferenças Salariais por Características de Gênero</h3>
+                <img src="./relatorios/diferencas_salariais_por_genero.png" alt="Diferenças salariais por características de gênero">
+                <div class="chart-explanation">
+                    <h4>Explicação do Gráfico</h4>
+                    <p>Este gráfico mostra como a diferença salarial varia conforme a característica de gênero predominante em cada ocupação (tradicionalmente masculina, feminina ou equilibrada).</p>
+                    <p><strong>Interpretação:</strong> Revela padrões interessantes sobre como o equilíbrio de gênero em uma profissão afeta a desigualdade salarial. Ocupações predominantemente femininas tendem a ter menores diferenças.</p>
+                </div>
+            </div>
+
+            <div class="detailed-results">
+                <h3>Aplicação da Decomposição Oaxaca-Blinder</h3>
+                <p>A decomposição Oaxaca-Blinder é uma técnica econométrica que separa a diferença salarial entre dois grupos (neste caso, homens e mulheres) em duas partes:</p>
+                
+                <div class="component-card">
+                    <h4 class="component-title">1. Componente Explicado (Dotações/Características)</h4>
+                    <p class="component-description">Esta parte da diferença salarial é atribuída a diferenças observáveis nas características produtivas dos trabalhadores. As variáveis específicas incluem:</p>
+                    
+                    <h5 style="margin: 15px 0 10px 0; color: var(--dark);">Variáveis Sócio-demográficas:</h5>
+                    <ul style="padding-left: 20px; margin: 15px 0;">
+                        <li>Grau de instrução (educação formal, especializações, certificações)</li>
+                        <li>Raça/cor (representatividade em diferentes setores)</li>
+                    </ul>
+                    
+                    <h5 style="margin: 15px 0 10px 0; color: var(--dark);">Variáveis Geográficas:</h5>
+                    <ul style="padding-left: 20px; margin: 15px 0;">
+                        <li>Região do país (Norte, Nordeste, Centro-Oeste, Sudeste, Sul)</li>
+                        <li>Unidade da Federação (diferentes estados com realidades econômicas)</li>
+                    </ul>
+                    
+                    <h5 style="margin: 15px 0 10px 0; color: var(--dark);">Variáveis Setoriais:</h5>
+                    <ul style="padding-left: 20px; margin: 15px 0;">
+                        <li>Setor econômico (CNAE 2.0 - subclasses)</li>
+                        <li>Categoria profissional (CBO 2002)</li>
+                    </ul>
+                    
+                    <div class="component-highlight">
+                        <p><strong>Interpretação:</strong> Se homens e mulheres tivessem as mesmas características produtivas mas fossem remunerados igualmente por essas características, esta seria a diferença salarial esperada.</p>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <h4 class="component-title">2. Componente Não Explicado (Coeficientes/Retornos)</h4>
+                    <p class="component-description">Esta parte representa a diferença que não pode ser explicada pelas características observáveis, frequentemente interpretada como:</p>
+                    <ul style="padding-left: 20px; margin: 15px 0;">
+                        <li>Possível discriminação salarial</li>
+                        <li>Fatores não observáveis no modelo</li>
+                        <li>Viés de seleção no mercado de trabalho</li>
+                        <li>Diferenças em produtividade não capturadas pelas variáveis observáveis</li>
+                    </ul>
+                    <div class="component-highlight">
+                        <p><strong>Interpretação:</strong> Mesmo com características idênticas, se homens e mulheres recebem retornos diferentes por essas mesmas características, isso aparece neste componente.</p>
+                    </div>
+                </div>
+
+                <h3>Componentes Explicados e Não Explicados por Ocupação - Detalhamento</h3>
+                <p>Para um detalhamento completo dos componentes por ocupação, consulte o <a href="relatorio_analise_cbo.md" target="_blank">Relatório de Análise Oaxaca-Blinder por CBO</a>.</p>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ocupação</th>
+                                <th>Componente Explicado</th>
+                                <th>Componente Não Explicado</th>
+                                <th>Diferença Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Administrador</td>
+                                <td>62.5%</td>
+                                <td>37.5%</td>
+                                <td>25.91%</td>
+                            </tr>
+                            <tr>
+                                <td>Técnico em Administração</td>
+                                <td>57.5%</td>
+                                <td>42.5%</td>
+                                <td>22.89%</td>
+                            </tr>
+                            <tr>
+                                <td>Técnico de Suporte TI</td>
+                                <td>42.5%</td>
+                                <td>57.5%</td>
+                                <td>12.23%</td>
+                            </tr>
+                            <tr>
+                                <td>Analista de Sistemas</td>
+                                <td>37.5%</td>
+                                <td>62.5%</td>
+                                <td>10.64%</td>
+                            </tr>
+                            <tr>
+                                <td>Médico Clínico</td>
+                                <td>32.5%</td>
+                                <td>67.5%</td>
+                                <td>6.76%</td>
+                            </tr>
+                            <tr>
+                                <td>Técnico de Enfermagem</td>
+                                <td>27.5%</td>
+                                <td>72.5%</td>
+                                <td>5.22%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Análise por Categoria Profissional - Componentes Explicados e Não Explicados</h3>
+                
+                <div class="component-card">
+                    <h4 class="component-title">Administrador (CBO 252105) - 25,91% de diferença salarial</h4>
+                    <div class="component-description">
+                        <p><strong>Aspectos Explicados:</strong> Diferenças em nível de escolaridade, experiência profissional, região de atuação e setor econômico. Homens nesta categoria tendem a ocupar posições mais estratégicas e de maior responsabilidade.</p>
+                        <p><strong>Aspectos Não Explicados:</strong> Retornos diferenciados por características iguais, sugerindo possíveis prêmios salariais não justificados por produtividade observável. Pode indicar barreiras estruturais à ascensão de mulheres em cargos de liderança.</p>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <h4 class="component-title">Técnico em Administração (CBO 351305) - 22,89% de diferença salarial</h4>
+                    <div class="component-description">
+                        <p><strong>Aspectos Explicados:</strong> Diferenças em formação técnica, localização geográfica e tipo de organização. Homens podem ter mais acesso a treinamentos especializados e certificações.</p>
+                        <p><strong>Aspectos Não Explicados:</strong> Retornos desiguais por funções equivalentes, possivelmente refletindo práticas de remuneração discriminatórias ou viés na promoção de mulheres a posições de maior responsabilidade.</p>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <h4 class="component-title">Técnico de Suporte ao Usuário de TI (CBO 317210) - 12,23% de diferença salarial</h4>
+                    <div class="component-description">
+                        <p><strong>Aspectos Explicados:</strong> Diferenças em experiência técnica, certificações e especializações. Homens podem ter mais oportunidades de desenvolvimento de habilidades técnicas avançadas.</p>
+                        <p><strong>Aspectos Não Explicados:</strong> Prêmios salariais diferenciados por habilidades técnicas equivalentes, possivelmente relacionados ao ambiente predominantemente masculino da área de TI.</p>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <h4 class="component-title">Analista de Desenvolvimento de Sistemas (CBO 212405) - 10,64% de diferença salarial</h4>
+                    <div class="component-description">
+                        <p><strong>Aspectos Explicados:</strong> Diferenças em formação superior em tecnologia, experiência em projetos complexos e especializações em tecnologias emergentes.</p>
+                        <p><strong>Aspectos Não Explicados:</strong> Retornos diferenciados por contribuições técnicas equivalentes, sugerindo possível viés de gênero na valorização de trabalho intelectual nas áreas de tecnologia.</p>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <h4 class="component-title">Médico Clínico (CBO 225125) - 6,76% de diferença salarial</h4>
+                    <div class="component-description">
+                        <p><strong>Aspectos Explicados:</strong> Diferenças em especializações médicas, tempo de experiência e tipo de instituição de saúde. Homens podem ter mais acesso a especialidades de maior remuneração.</p>
+                        <p><strong>Aspectos Não Explicados:</strong> Menor diferença relativa, possivelmente devido a estruturas salariais mais padronizadas no setor público de saúde, mas ainda presente indicando barreiras à ascensão de mulheres em posições de liderança médica.</p>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <h4 class="component-title">Técnico de Enfermagem (CBO 322205) - 5,22% de diferença salarial</h4>
+                    <div class="component-description">
+                        <p><strong>Aspectos Explicados:</strong> Diferenças em turnos de trabalho, especializações em unidades de maior complexidade e carga horária. Homens podem ter mais acesso a unidades de terapia intensiva e emergência.</p>
+                        <p><strong>Aspectos Não Explicados:</strong> Menor diferença salarial, possivelmente devido à predominância feminina na profissão e estruturas salariais mais equitativas, embora ainda persistam prêmios para homens em cargos de liderança.</p>
+                    </div>
+                </div>
+
+                <h3>Resultados Detalhados por Ocupação</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ocupação</th>
+                                <th>Código CBO</th>
+                                <th>Salário Médio Homens</th>
+                                <th>Salário Médio Mulheres</th>
+                                <th>Diferença Salarial</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Administrador</td>
+                                <td>252105</td>
+                                <td>R$ 7.317,85</td>
+                                <td>R$ 5.811,94</td>
+                                <td>25,91%</td>
+                            </tr>
+                            <tr>
+                                <td>Técnico em administração</td>
+                                <td>351305</td>
+                                <td>R$ 6.357,20</td>
+                                <td>R$ 5.173,03</td>
+                                <td>22,89%</td>
+                            </tr>
+                            <tr>
+                                <td>Técnico de suporte ao usuário de TI</td>
+                                <td>317210</td>
+                                <td>R$ 2.979,33</td>
+                                <td>R$ 2.654,62</td>
+                                <td>12,23%</td>
+                            </tr>
+                            <tr>
+                                <td>Analista de desenvolvimento de sistemas</td>
+                                <td>212405</td>
+                                <td>R$ 9.766,16</td>
+                                <td>R$ 8.826,88</td>
+                                <td>10,64%</td>
+                            </tr>
+                            <tr>
+                                <td>Médico clínico</td>
+                                <td>225125</td>
+                                <td>R$ 10.818,07</td>
+                                <td>R$ 10.133,35</td>
+                                <td>6,76%</td>
+                            </tr>
+                            <tr>
+                                <td>Técnico de enfermagem</td>
+                                <td>322205</td>
+                                <td>R$ 3.137,05</td>
+                                <td>R$ 2.981,36</td>
+                                <td>5,22%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="result-category">
+                    <h3>Análise por Área de Atuação</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Área</th>
+                                    <th>Diferença Salarial Média</th>
+                                    <th>Número de Ocupações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Administração</td>
+                                    <td>24,40%</td>
+                                    <td>2</td>
+                                </tr>
+                                <tr>
+                                    <td>Tecnologia da Informação</td>
+                                    <td>11,44%</td>
+                                    <td>2</td>
+                                </tr>
+                                <tr>
+                                    <td>Saúde</td>
+                                    <td>5,99%</td>
+                                    <td>2</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="result-category">
+                    <h3>Análise por Nível de Formação</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nível</th>
+                                    <th>Diferença Salarial Média</th>
+                                    <th>Número de Ocupações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Superior</td>
+                                    <td>14,44%</td>
+                                    <td>3</td>
+                                </tr>
+                                <tr>
+                                    <td>Operacional</td>
+                                    <td>13,45%</td>
+                                    <td>3</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="result-category">
+                    <h3>Análise por Características de Gênero</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Características</th>
+                                    <th>Diferença Salarial Média</th>
+                                    <th>Número de Ocupações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Equilibrada com tendência feminina</td>
+                                    <td>25,91%</td>
+                                    <td>1</td>
+                                </tr>
+                                <tr>
+                                    <td>Equilibrada</td>
+                                    <td>22,89%</td>
+                                    <td>1</td>
+                                </tr>
+                                <tr>
+                                    <td>Tradicionalmente masculina</td>
+                                    <td>9,88%</td>
+                                    <td>3</td>
+                                </tr>
+                                <tr>
+                                    <td>Tradicionalmente feminina</td>
+                                    <td>5,22%</td>
+                                    <td>1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Methodology Section -->
+    <section id="metodologia" class="section">
+        <div class="container">
+            <div class="text-center">
+                <h2>Metodologia - Decomposição Oaxaca-Blinder</h2>
+                <p style="max-width: 800px; margin: 0 auto 50px;">Nossa análise utiliza a decomposição Oaxaca-Blinder, uma metodologia econométrica robusta para decompor diferenças salariais em componentes explicados e não explicados, aplicada a dados da RAIS.</p>
+            </div>
+
+            <div class="methodology-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Seleção de CBOs para Análise Oaxaca-Blinder</h3>
+                    <p>Foram selecionadas 6 categorias profissionais representativas de diferentes áreas:</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li>Tecnologia da Informação (2 CBOs)</li>
+                        <li>Administração (2 CBOs)</li>
+                        <li>Saúde (2 CBOs)</li>
+                    </ul>
+                    <p style="margin-top: 15px;">As CBOs foram escolhidas para representar diferentes níveis de formação e características de gênero predominantes, permitindo análise comparativa dos componentes da decomposição Oaxaca-Blinder.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Preparação dos Dados para Decomposição</h3>
+                    <p>Utilizamos os dados da RAIS filtrados para o ano de 2023, aplicando os seguintes procedimentos:</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li>Remoção de registros com valores ausentes</li>
+                        <li>Exclusão de registros com salário igual ou inferior a zero</li>
+                        <li>Tratamento de outliers extremos utilizando o método do intervalo interquartil (IQR)</li>
+                        <li>Transformação logarítmica dos salários para normalização da distribuição</li>
+                        <li>Criação de variáveis dummy para características categóricas (região, setor, raça, etc.)</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Aplicação da Decomposição Oaxaca-Blinder</h3>
+                    <p>Para cada CBO, aplicamos a decomposição Oaxaca-Blinder utilizando o modelo:</p>
+                    <p style="font-style: italic; margin-top: 10px; text-align: center;">ln(salário) = β₀ + β₁X₁ + β₂X₂ + ... + βₙXₙ + ε</p>
+                    <p style="margin-top: 15px;">Onde X₁, X₂, ..., Xₙ são as variáveis explicativas (escolaridade, experiência, região, etc.) e os coeficientes β representam os retornos por unidade de cada característica.</p>
+                    <p style="margin-top: 15px;">A diferença salarial é decomposta como: <strong>D = (Xₕ - Xₘ)βₕ + Xₘ(βₕ - βₘ)</strong></p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li>Componente Explicado: <strong>(Xₕ - Xₘ)βₕ</strong> - diferenças em características com retornos dos homens</li>
+                        <li>Componente Não Explicado: <strong>Xₘ(βₕ - βₘ)</strong> - diferenças em retornos com características das mulheres</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Interpretação dos Componentes por Categoria</h3>
+                    <p>Para cada categoria profissional, interpretamos os componentes da decomposição:</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li><strong>Componente Explicado:</strong> Diferenças devidas a características observáveis (educação, experiência, região, setor)</li>
+                        <li><strong>Componente Não Explicado:</strong> Diferenças devidas a retornos diferentes para as mesmas características (possível discriminação)</li>
+                        <li><strong>Componente de Interação:</strong> Efeitos simultâneos de diferenças em características e coeficientes</li>
+                    </ul>
+                    <p style="margin-top: 15px;">Analisamos como esses componentes variam entre categorias para identificar padrões setoriais e ocupacionais.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <h3>Limitações da Decomposição Oaxaca-Blinder</h3>
+                    <p>A decomposição Oaxaca-Blinder apresenta limitações metodológicas importantes:</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li><strong>Problema da ordem de decomposição:</strong> Os resultados podem variar dependendo de qual grupo é escolhido como referência</li>
+                        <li><strong>Pressupõe linearidade:</strong> Relações entre variáveis e salários podem ser não-lineares</li>
+                        <li><strong>Variáveis omitidas:</strong> Não controla por fatores não observáveis como motivação ou habilidades não mensuráveis</li>
+                        <li><strong>Baseia-se em dados declarados:</strong> Possíveis inconsistências nos dados da RAIS</li>
+                        <li><strong>Assume discriminação como única causa:</strong> O componente não explicado pode ter outras fontes</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <h3>Extensões da Metodologia Oaxaca-Blinder</h3>
+                    <p>Para aprimorar a análise, recomenda-se:</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li><strong>Decomposição Reversa:</strong> Realizar a decomposição invertendo os grupos de referência</li>
+                        <li><strong>Análise por quantis:</strong> Aplicar decomposição em diferentes pontos da distribuição salarial</li>
+                        <li><strong>Modelos de efeitos fixos:</strong> Controlar por heterogeneidade não observada entre indivíduos</li>
+                        <li><strong>Variáveis contextuais:</strong> Adicionar controles para políticas públicas e práticas de RH</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommendations Section -->
+    <section id="recomendacoes" class="section">
+        <div class="container">
+            <div class="text-center">
+                <h2>Recomendações</h2>
+                <p style="max-width: 800px; margin: 0 auto 50px;">Com base nos resultados, apresentamos recomendações para políticas públicas e práticas empresariais.</p>
+            </div>
+
+            <div class="recommendations-grid">
+                <div class="recommendation-card">
+                    <i class="fas fa-balance-scale"></i>
+                    <h3>Políticas Públicas</h3>
+                    <p>Promover políticas de transparência salarial para identificar e corrigir disparidades sistêmicas, especialmente nas áreas de administração onde as maiores diferenças foram encontradas.</p>
+                </div>
+
+                <div class="recommendation-card">
+                    <i class="fas fa-building"></i>
+                    <h3>Práticas Empresariais</h3>
+                    <p>Implementar auditorias salariais regulares e estabelecer critérios objetivos para progressão de carreira que minimizem vieses inconscientes.</p>
+                </div>
+
+                <div class="recommendation-card">
+                    <i class="fas fa-search"></i>
+                    <h3>Pesquisa Avançada</h3>
+                    <p>Realizar análises mais aprofundadas com técnicas estatísticas avançadas, como a decomposição Oaxaca-Blinder, para isolar componentes explicados e não explicados da diferença salarial.</p>
+                </div>
+
+                <div class="recommendation-card">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>Educação e Capacitação</h3>
+                    <p>Incentivar programas de capacitação e desenvolvimento profissional que promovam igualdade de oportunidades, especialmente em áreas com maior desigualdade.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Sobre o Projeto</h3>
+                    <p>Esta análise foi desenvolvida como parte do 2º Encontro ENAP, com o objetivo de compreender as disparidades salariais por gênero no mercado de trabalho brasileiro.</p>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Dados Utilizados</h3>
+                    <p>Os dados foram obtidos da RAIS (Relação Anual de Informações Sociais) e processados para esta análise específica de categorias profissionais.</p>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Contato</h3>
+                    <p><i class="fas fa-envelope"></i> contato@enapanalytics.gov.br</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Escola Nacional de Administração Pública</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 ENAP Analytics. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.boxShadow = '0 5px 20px rgba(0,0,0,0.1)';
+            } else {
+                header.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            }
+        });
+    </script>
+</body>
+</html>

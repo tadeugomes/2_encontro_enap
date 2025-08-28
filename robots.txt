@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://tadeugomes.github.io/2_encontro_enap/sitemap.xml
